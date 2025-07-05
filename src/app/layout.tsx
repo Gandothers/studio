@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Audio Scribe',
+  title: 'Tscribe',
   description: 'Transcribe audio to text with the power of AI.',
 };
 
