@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { anonymizeTranscription } from '@/ai/flows/anonymize-transcription';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 type Status = 'idle' | 'transcribing' | 'editing' | 'error';
 
@@ -118,17 +119,17 @@ export default function Home() {
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
-      <header className="flex flex-col items-center text-center mb-12">
+      <header className="flex flex-col items-center text-center mb-16">
         <Logo />
-        <p className="mt-2 text-lg text-muted-foreground">
-          Upload an audio file and get an AI-powered transcription and summary.
+        <p className="mt-4 max-w-xl text-lg text-muted-foreground">
+          Effortlessly convert your audio files into accurate, readable, and summarized text. Our AI handles the heavy lifting, so you can focus on what matters.
         </p>
       </header>
 
       <div className="flex flex-col items-center gap-8">
         {status === 'idle' && (
           <div className="w-full max-w-2xl space-y-6">
-            <Card className="p-6 space-y-6 border-amber-500/50 bg-amber-50/20">
+            <Card className="p-6 space-y-6 bg-muted/50 border-dashed">
               <div className="flex items-start space-x-3">
                 <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
                 <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
@@ -222,7 +223,8 @@ export default function Home() {
         )}
       </div>
 
-       <footer className="text-center mt-16 text-sm text-muted-foreground">
+       <footer className="text-center mt-24 text-sm text-muted-foreground">
+        <Separator className="w-1/2 mx-auto mb-4" />
         <p>Built with Next.js and Genkit AI.</p>
       </footer>
     </main>
