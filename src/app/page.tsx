@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { anonymizeTranscription } from '@/ai/flows/anonymize-transcription';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Status = 'idle' | 'transcribing' | 'editing' | 'error';
 
@@ -42,6 +43,7 @@ export default function Home() {
   const [hasConsented, setHasConsented] = useState(false);
   const [anonymize, setAnonymize] = useState(true);
   const [wasAnonymized, setWasAnonymized] = useState(false);
+  const [language, setLanguage] = useState('English');
 
   const handleFileUpload = async (file: File) => {
     setStatus('transcribing');
@@ -56,7 +58,7 @@ export default function Home() {
       setProgress(10);
 
       setProgressMessage('Transcribing audio...');
-      const { transcription: rawTranscription } = await transcribeAudio({ audioDataUri });
+      const { transcription: rawTranscription } = await transcribeAudio({ audioDataUri, language });
       setProgress(40);
       
       setProgressMessage('Improving accuracy and adding timestamps...');
@@ -125,20 +127,48 @@ export default function Home() {
       <div className="flex flex-col items-center gap-8">
         {status === 'idle' && (
           <div className="w-full max-w-2xl space-y-6">
-            <Card className="p-6 space-y-4 border-amber-500/50 bg-amber-50/20">
+            <Card className="p-6 space-y-6 border-amber-500/50 bg-amber-50/20">
               <div className="flex items-start space-x-3">
                 <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
                 <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
                   I consent to my audio file being processed by AI models to generate a transcription and summary. I acknowledge that I am responsible for the content I upload and confirm it does not contain sensitive personal data that would require special handling under regulations like GDPR.
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 pl-1">
-                <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
-                <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3">
+                  <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
+                  <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
+                </div>
+                 <p className="text-xs text-muted-foreground pl-11">
+                    When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a "best effort" tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws.
+                 </p>
               </div>
-               <p className="text-xs text-muted-foreground pl-1">
-                When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a "best effort" tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws.
-               </p>
+
+              <div className="space-y-2">
+                <Label htmlFor="language-select">Audio Language</Label>
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger id="language-select" className="w-full">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                    <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
+                    <SelectItem value="Japanese">Japanese</SelectItem>
+                    <SelectItem value="Hindi">Hindi</SelectItem>
+                    <SelectItem value="Portuguese">Portuguese</SelectItem>
+                    <SelectItem value="Arabic">Arabic</SelectItem>
+                    <SelectItem value="Russian">Russian</SelectItem>
+                    <SelectItem value="auto">Other (Auto-Detect)</SelectItem>
+                  </SelectContent>
+                </Select>
+                 <p className="text-xs text-muted-foreground">
+                  Specifying the language can improve transcription accuracy. The model can handle many other languages not listed here.
+                 </p>
+              </div>
             </Card>
             <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle' || !hasConsented} />
           </div>

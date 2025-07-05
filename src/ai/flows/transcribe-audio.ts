@@ -18,6 +18,7 @@ const TranscribeAudioInputSchema = z.object({
     .describe(
       "An audio file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+  language: z.string().optional().describe('The language of the audio file (e.g., "English", "Spanish"). Providing the language can improve accuracy.'),
 });
 export type TranscribeAudioInput = z.infer<typeof TranscribeAudioInputSchema>;
 
@@ -39,10 +40,16 @@ const transcribeAudioFlow = ai.defineFlow(
     outputSchema: TranscribeAudioOutputSchema,
   },
   async input => {
+    let promptText = 'Transcribe the following audio file.';
+
+    if (input.language && input.language !== 'auto') {
+        promptText = `Transcribe the following audio file. The language spoken in the audio is ${input.language}. Please provide the transcription in that language.`;
+    }
+
     const {text} = await ai.generate({
       model: googleAI.model('gemini-1.5-flash'),
       prompt: [
-        {text: 'Transcribe the following audio file.'},
+        {text: promptText},
         {media: {url: input.audioDataUri}},
       ],
     });
