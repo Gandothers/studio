@@ -64,6 +64,7 @@ export default function Home() {
       setProgressMessage('Improving accuracy and adding timestamps...');
       const { improvedTranscription } = await improveTranscriptionAccuracy({
         transcription: rawTranscription,
+        audioDataUri,
       });
       setProgress(70);
 
@@ -131,7 +132,7 @@ export default function Home() {
               <div className="flex items-start space-x-3">
                 <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
                 <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
-                  I consent to my audio file being processed by AI models to generate a transcription and summary. I acknowledge that I am responsible for the content I upload and confirm it does not contain sensitive personal data that would require special handling under regulations like GDPR.
+                  I consent to my audio file being processed by AI models to generate a transcription and summary. I acknowledge that I am responsible for the content I upload and confirm it does not contain sensitive personal data that would require special handling under regulations like GDPR or HIPAA.
                 </Label>
               </div>
               
@@ -141,7 +142,7 @@ export default function Home() {
                   <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
                 </div>
                  <p className="text-xs text-muted-foreground pl-11">
-                    When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a "best effort" tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws.
+                    When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a &quot;best effort&quot; tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws. Do not upload audio with Protected Health Information (PHI).
                  </p>
               </div>
 
