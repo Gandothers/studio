@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { improveTranscriptionAccuracy, type TranscriptionSegment } from '@/ai/flows/improve-accuracy';
 import { summarizeTranscription } from '@/ai/flows/summarize-transcription';
+import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { AudioUpload } from '@/components/audio-upload';
 import { TranscriptionEditor } from '@/components/transcription-editor';
 import { Logo } from '@/components/logo';
@@ -13,9 +14,17 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type Status = 'idle' | 'transcribing' | 'editing' | 'error';
 
-// Dummy text to simulate a real transcription before AI improvement
-const DUMMY_TRANSCRIPTION =
-  'Speaker 1: Hello, is this thing on? Speaker 2: Yes, I can hear you. How are you? Speaker 1: I am doing great, thanks for asking! I was just wondering if this transcription service can handle multiple speakers. Speaker 2: It seems like it can. It should be able to separate our voices and assign timestamps. That\'s pretty neat.';
+// Helper function to convert a File object to a data URI
+const fileToDataUri = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 export default function Home() {
   const [status, setStatus] = useState<Status>('idle');
@@ -23,39 +32,32 @@ export default function Home() {
   const [transcription, setTranscription] = useState<TranscriptionSegment[]>([]);
   const [summary, setSummary] = useState('');
   const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === 'transcribing') {
-      setProgress(0);
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(interval);
-            return 90;
-          }
-          return prev + 5;
-        });
-      }, 200);
-
-      return () => clearInterval(interval);
-    }
-  }, [status]);
-  
   const handleFileUpload = async (file: File) => {
     setStatus('transcribing');
     setUploadedFile(file);
     setError(null);
+    setProgress(0);
 
     try {
-      // Step 1: Simulate transcription and then improve it with AI
+      setProgressMessage('Uploading and preparing audio...');
+      const audioDataUri = await fileToDataUri(file);
+      setProgress(10);
+
+      setProgressMessage('Transcribing audio...');
+      const { transcription: rawTranscription } = await transcribeAudio({ audioDataUri });
+      setProgress(50);
+      
+      setProgressMessage('Improving accuracy and adding timestamps...');
       const { improvedTranscription } = await improveTranscriptionAccuracy({
-        transcription: DUMMY_TRANSCRIPTION,
+        transcription: rawTranscription,
       });
       setTranscription(improvedTranscription);
       setProgress(95);
 
-      // Step 2: Summarize the improved transcription with AI
+      setProgressMessage('Generating summary...');
       const textToSummarize = improvedTranscription.map(segment => segment.text).join(' ');
       const { summary: aiSummary } = await summarizeTranscription({
         transcription: textToSummarize,
@@ -82,6 +84,7 @@ export default function Home() {
     setSummary('');
     setProgress(0);
     setError(null);
+    setProgressMessage('');
   }
 
   return (
@@ -111,7 +114,7 @@ export default function Home() {
                   <Hourglass className="animate-spin" />
                   <div className="w-full space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      AI is transcribing and analyzing...
+                      {progressMessage || 'AI is transcribing and analyzing...'}
                     </p>
                     <Progress value={progress} className="w-full" />
                   </div>
