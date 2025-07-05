@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Download, FileText, Sparkles, BookText, ShieldCheck } from 'lucide-react';
 import type { TranscriptionSegment } from '@/ai/schemas';
 import { Badge } from '@/components/ui/badge';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
 
 interface TranscriptionEditorProps {
   initialTranscription: TranscriptionSegment[];
@@ -34,19 +35,51 @@ export function TranscriptionEditor({
   };
   
   const handleExport = (format: 'txt' | 'docx') => {
-    const textToExport = editedTranscription
-      .map(segment => `[${segment.timestamp}] ${segment.speaker}: ${segment.text}`)
-      .join('\n\n');
-    const blob = new Blob([textToExport], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
     const baseName = fileName.split('.').slice(0, -1).join('.') || fileName;
-    link.download = `${baseName}_transcription.${format}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    const downloadFile = (blob: Blob, downloadName: string) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = downloadName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    if (format === 'txt') {
+      const textToExport = editedTranscription
+        .map(segment => `[${segment.timestamp}] ${segment.speaker}: ${segment.text}`)
+        .join('\n\n');
+      const blob = new Blob([textToExport], { type: 'text/plain;charset=utf-8' });
+      downloadFile(blob, `${baseName}_transcription.txt`);
+      return;
+    }
+
+    if (format === 'docx') {
+      const doc = new Document({
+        sections: [{
+          children: editedTranscription.map(
+            (segment) =>
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `[${segment.timestamp}] ${segment.speaker}: `,
+                    bold: true,
+                  }),
+                  new TextRun(segment.text),
+                ],
+                spacing: { after: 240 }, // Adds space after each segment
+              })
+          ),
+        }],
+      });
+
+      Packer.toBlob(doc).then(blob => {
+        downloadFile(blob, `${baseName}_transcription.docx`);
+      });
+    }
   };
 
   return (
