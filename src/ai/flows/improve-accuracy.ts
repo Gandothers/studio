@@ -52,7 +52,7 @@ const improveTranscriptionAccuracyFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await ai.generate({
-      model: googleAI.model('gemini-1.5-pro'),
+      model: googleAI.model('gemini-1.5-flash'),
       prompt: [
         {
           text: `You are an AI expert in improving and structuring transcriptions.
