@@ -13,24 +13,24 @@ interface AudioUploadProps {
 export function AudioUpload({ onFileUpload, disabled }: AudioUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (!disabled) setIsDragging(true);
   };
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   };
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -63,13 +63,13 @@ export function AudioUpload({ onFileUpload, disabled }: AudioUploadProps) {
   return (
     <Card className={cn('w-full', { 'border-primary ring-2 ring-primary': isDragging, 'pointer-events-none opacity-50': disabled })}>
       <CardContent className="p-4">
-        <div
+        <label
+          htmlFor="audio-input"
           className="relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/80 transition-colors"
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          onClick={() => document.getElementById('audio-input')?.click()}
         >
           <input
             id="audio-input"
@@ -89,7 +89,7 @@ export function AudioUpload({ onFileUpload, disabled }: AudioUploadProps) {
               Supported formats: MP3, WAV, M4A, etc.
             </p>
           </div>
-        </div>
+        </label>
       </CardContent>
     </Card>
   );
