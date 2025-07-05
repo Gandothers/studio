@@ -129,14 +129,16 @@ export default function Home() {
               <div className="flex items-start space-x-3">
                 <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
                 <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
-                  I understand that my audio file will be processed by Google AI for transcription. I will not upload any sensitive personal data, financial information, or Protected Health Information (PHI).
+                  I confirm I will not upload audio containing sensitive data like financial information or Protected Health Information (PHI). I understand the PII redaction feature is a safeguard, not a guarantee of compliance.
                 </Label>
               </div>
               <div className="flex items-center space-x-3 pl-1">
                 <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
                 <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
               </div>
-               <p className="text-xs text-muted-foreground pl-1">Recommended for privacy. Automatically finds and removes sensitive information like names, phone numbers, and addresses from the final transcript.</p>
+               <p className="text-xs text-muted-foreground pl-1">
+                When enabled, the AI will attempt to find and remove personal information (names, phones, etc.) and health information (PHI) from the final transcript. <strong className="text-amber-700">Warning: This is not a guarantee. You are still responsible for not uploading sensitive audio.</strong>
+               </p>
             </Card>
             <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle' || !hasConsented} />
           </div>
