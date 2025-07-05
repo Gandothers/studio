@@ -89,7 +89,7 @@ export function TranscriptionEditor({
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-accent" />
+                <Sparkles className="w-6 h-6 text-primary" />
                 <CardTitle>Transcription Editor</CardTitle>
               </div>
               {anonymized && (
@@ -129,7 +129,7 @@ export function TranscriptionEditor({
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <BookText className="w-6 h-6 text-accent" />
+              <BookText className="w-6 h-6 text-primary" />
               <CardTitle>AI Summary</CardTitle>
             </div>
           </CardHeader>

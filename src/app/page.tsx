@@ -119,57 +119,59 @@ export default function Home() {
 
   return (
     <main className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
-      <header className="flex flex-col items-center text-center mb-16">
+      <header className="flex flex-col items-center text-center mb-12">
         <Logo />
-        <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-          Effortlessly convert your audio files into accurate, readable, and summarized text. Our AI handles the heavy lifting, so you can focus on what matters.
+        <p className="mt-4 max-w-lg text-lg text-muted-foreground">
+          Upload your audio. We use AI to transcribe, redact, and summarize it for you.
         </p>
       </header>
 
       <div className="flex flex-col items-center gap-8">
         {status === 'idle' && (
           <div className="w-full max-w-2xl space-y-6">
-            <Card className="p-6 space-y-6 bg-muted/50 border-dashed">
-              <div className="flex items-start space-x-3">
-                <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
-                <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
-                  I consent to my audio file being processed by AI models to generate a transcription and summary. I acknowledge that I am responsible for the content I upload and confirm it does not contain sensitive personal data that would require special handling under regulations like GDPR or HIPAA.
-                </Label>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-3">
-                  <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
-                  <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
+            <Card className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
+                  <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground leading-snug cursor-pointer -mt-1">
+                    I acknowledge my audio will be processed by AI. I am responsible for the content I upload and will not upload sensitive Protected Health Information (PHI).
+                  </Label>
                 </div>
-                 <p className="text-xs text-muted-foreground pl-11">
-                    When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a &quot;best effort&quot; tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws. Do not upload audio with Protected Health Information (PHI).
-                 </p>
-              </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-3">
+                    <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
+                    <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII Redaction</Label>
+                  </div>
+                   <p className="text-xs text-muted-foreground pl-11">
+                      Helps enhance privacy by removing personal information. This is not a compliance guarantee.
+                   </p>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="language-select">Audio Language</Label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger id="language-select" className="w-full">
-                    <SelectValue placeholder="Select language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Spanish">Spanish</SelectItem>
-                    <SelectItem value="French">French</SelectItem>
-                    <SelectItem value="German">German</SelectItem>
-                    <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
-                    <SelectItem value="Japanese">Japanese</SelectItem>
-                    <SelectItem value="Hindi">Hindi</SelectItem>
-                    <SelectItem value="Portuguese">Portuguese</SelectItem>
-                    <SelectItem value="Arabic">Arabic</SelectItem>
-                    <SelectItem value="Russian">Russian</SelectItem>
-                    <SelectItem value="auto">Other (Auto-Detect)</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <p className="text-xs text-muted-foreground">
-                  Specifying the language can improve transcription accuracy. The model can handle many other languages not listed here.
-                 </p>
+                <div className="space-y-2">
+                  <Label htmlFor="language-select">Audio Language</Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language-select" className="w-full">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="Spanish">Spanish</SelectItem>
+                      <SelectItem value="French">French</SelectItem>
+                      <SelectItem value="German">German</SelectItem>
+                      <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
+                      <SelectItem value="Japanese">Japanese</SelectItem>
+                      <SelectItem value="Hindi">Hindi</SelectItem>
+                      <SelectItem value="Portuguese">Portuguese</SelectItem>
+                      <SelectItem value="Arabic">Arabic</SelectItem>
+                      <SelectItem value="Russian">Russian</SelectItem>
+                      <SelectItem value="auto">Other (Auto-Detect)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                   <p className="text-xs text-muted-foreground">
+                    Specifying the language can improve transcription accuracy.
+                   </p>
+                </div>
               </div>
             </Card>
             <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle' || !hasConsented} />
@@ -225,7 +227,7 @@ export default function Home() {
 
        <footer className="text-center mt-24 text-sm text-muted-foreground">
         <Separator className="w-1/2 mx-auto mb-4" />
-        <p>Built with Next.js and Genkit AI.</p>
+        <p>Powered by Next.js and Genkit</p>
       </footer>
     </main>
   );
