@@ -129,7 +129,7 @@ export default function Home() {
               <div className="flex items-start space-x-3">
                 <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
                 <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
-                  I confirm I will not upload audio containing sensitive data like financial information or Protected Health Information (PHI). I understand the PII redaction feature is a safeguard, not a guarantee of compliance.
+                  I consent to my audio file being processed by AI models to generate a transcription and summary. I acknowledge that I am responsible for the content I upload and confirm it does not contain sensitive personal data that would require special handling under regulations like GDPR.
                 </Label>
               </div>
               <div className="flex items-center space-x-3 pl-1">
@@ -137,7 +137,7 @@ export default function Home() {
                 <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
               </div>
                <p className="text-xs text-muted-foreground pl-1">
-                When enabled, the AI will attempt to find and remove personal information (names, phones, etc.) and health information (PHI) from the final transcript. <strong className="text-amber-700">Warning: This is not a guarantee. You are still responsible for not uploading sensitive audio.</strong>
+                When enabled, the AI will attempt to redact personal information (PII) to enhance privacy. This is a "best effort" tool and not a guarantee of complete anonymization. You remain responsible for compliance with data protection laws.
                </p>
             </Card>
             <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle' || !hasConsented} />
