@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { improveTranscriptionAccuracy } from '@/ai/flows/improve-accuracy';
+import { improveTranscriptionAccuracy, type TranscriptionSegment } from '@/ai/flows/improve-accuracy';
 import { summarizeTranscription } from '@/ai/flows/summarize-transcription';
 import { AudioUpload } from '@/components/audio-upload';
 import { TranscriptionEditor } from '@/components/transcription-editor';
@@ -15,12 +15,12 @@ type Status = 'idle' | 'transcribing' | 'editing' | 'error';
 
 // Dummy text to simulate a real transcription before AI improvement
 const DUMMY_TRANSCRIPTION =
-  'helo world this is a test transkription. i think the quick brown fox jumps over the lazy dog. we need to check the acuracy of this text to see if it makes sens. Subjects verbs and objects are important. let see what the AI can do.';
+  'Speaker 1: Hello, is this thing on? Speaker 2: Yes, I can hear you. How are you? Speaker 1: I am doing great, thanks for asking! I was just wondering if this transcription service can handle multiple speakers. Speaker 2: It seems like it can. It should be able to separate our voices and assign timestamps. That\'s pretty neat.';
 
 export default function Home() {
   const [status, setStatus] = useState<Status>('idle');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [transcription, setTranscription] = useState('');
+  const [transcription, setTranscription] = useState<TranscriptionSegment[]>([]);
   const [summary, setSummary] = useState('');
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -56,8 +56,9 @@ export default function Home() {
       setProgress(95);
 
       // Step 2: Summarize the improved transcription with AI
+      const textToSummarize = improvedTranscription.map(segment => segment.text).join(' ');
       const { summary: aiSummary } = await summarizeTranscription({
-        transcription: improvedTranscription,
+        transcription: textToSummarize,
       });
       setSummary(aiSummary);
       setProgress(100);
@@ -77,7 +78,7 @@ export default function Home() {
   const resetState = () => {
     setStatus('idle');
     setUploadedFile(null);
-    setTranscription('');
+    setTranscription([]);
     setSummary('');
     setProgress(0);
     setError(null);
