@@ -4,9 +4,14 @@ This guide provides instructions for deploying your Next.js application to the w
 
 ## Firebase App Hosting (Recommended)
 
-Your project is already configured for easy deployment on Firebase App Hosting, which has a generous free tier suitable for many applications.
+Your project is already configured for easy deployment on Firebase App Hosting.
 
-The deployment process is mostly automated once you connect your code repository.
+### Important Note on Firebase Plans
+To deploy this application, you will need to upgrade your Firebase project from the free "Spark" plan to the "Blaze" (pay-as-you-go) plan.
+
+**Why?** The app makes calls to the Google AI API, which counts as an "outbound network request." The free Spark plan does not allow these requests from your application's server.
+
+**Is it still free?** The Blaze plan has a generous free tier that is much larger than what most new applications use. You will only be charged if your app's usage exceeds this free tier. For this application, it's very unlikely you'll incur costs unless it becomes extremely popular. You can set up billing alerts in the Google Cloud console to notify you if you're approaching any limits.
 
 ### Managing API Keys and Secrets
 
@@ -21,13 +26,15 @@ It is critical that you **never** commit your API keys directly into your code r
 
 2.  **Go to the Firebase Console:** Open the Firebase Console for your project in your web browser.
 
-3.  **Navigate to App Hosting:** In the left-hand menu under the "Build" section, find and click on **App Hosting**.
+3.  **Upgrade to Blaze Plan:** On your project's main page, look for the plan information near the bottom of the left-hand menu (it will likely say "Spark"). Click it and follow the prompts to upgrade to the "Blaze" plan. This requires adding a billing account, but as mentioned above, you won't be charged unless you exceed the generous free tier.
 
-4.  **Create a Backend:** Click the **"Create backend"** button.
+4.  **Navigate to App Hosting:** In the left-hand menu under the "Build" section, find and click on **App Hosting**.
 
-5.  **Connect Your Repository:** Follow the on-screen prompts to connect Firebase to your GitHub account and select the repository for this project.
+5.  **Create a Backend:** Click the **"Create backend"** button.
 
-6.  **Add Your API Key:**
+6.  **Connect Your Repository:** Follow the on-screen prompts to connect Firebase to your GitHub account and select the repository for this project.
+
+7.  **Add Your API Key:**
     *   Once your backend is created, stay on the App Hosting page.
     *   Look for a section or tab related to **"Secrets"** or **"Environment Variables"**.
     *   Click to add a new secret.
@@ -35,13 +42,13 @@ It is critical that you **never** commit your API keys directly into your code r
     *   Paste your actual Google AI API key into the **Value** field.
     *   Save the secret.
 
-7.  **Deploy:** Firebase will automatically build your application using your repository and securely inject the `GOOGLE_API_KEY` you just saved. Once it's finished, you will be given a public URL where you can access your live application.
+8.  **Deploy:** Firebase will automatically build your application using your repository and securely inject the `GOOGLE_API_KEY` you just saved. Once it's finished, you will be given a public URL where you can access your live application.
 
 That's it! From now on, every time you push a change to your main branch on GitHub, Firebase App Hosting will automatically redeploy the new version for you, always using the secure key you saved.
 
 ## Alternative: Vercel
 
-Vercel, the company behind Next.js, also offers a fantastic free hosting platform. The process is similar: you would add your `GOOGLE_API_KEY` in the "Environment Variables" section of your project settings in the Vercel dashboard.
+If you prefer not to upgrade to the Blaze plan, Vercel offers a fantastic free hosting platform that does not have the same restrictions on outbound networking. The process is similar: you would add your `GOOGLE_API_KEY` in the "Environment Variables" section of your project settings in the Vercel dashboard.
 
 1.  Sign up for a Vercel account and connect it to your GitHub account.
 2.  From the Vercel dashboard, click **"Add New... > Project"**.
