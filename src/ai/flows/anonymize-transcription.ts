@@ -41,9 +41,15 @@ export async function anonymizeTranscription(input: {
   return anonymizeTranscriptionFlow(input);
 }
 
+// Define a schema specifically for the prompt's input.
+const AnonymizePromptInputSchema = z.object({
+  transcriptionJson: z.string().describe('A JSON string of the transcription segments to be processed.'),
+});
+
+
 const prompt = ai.definePrompt({
   name: 'anonymizeTranscriptionPrompt',
-  input: {schema: AnonymizeTranscriptionInputSchema},
+  input: {schema: AnonymizePromptInputSchema},
   output: {schema: AnonymizeTranscriptionOutputSchema},
   prompt: `You are a privacy and security expert specializing in redacting Personally Identifiable Information (PII) and Protected Health Information (PHI) from text. Your task is to process the provided transcription segments and return them with all sensitive information replaced by placeholders like [REDACTED_NAME], [REDACTED_PHONE], [REDACTED_EMAIL], or [REDACTED_ADDRESS].
 
@@ -64,7 +70,7 @@ Here is the list of PII/PHI to redact:
 - Any other information that could uniquely identify an individual.
 
 Process the following transcription segments:
-{{{jsonStringify transcription}}}
+{{{transcriptionJson}}}
 `,
 });
 
@@ -75,7 +81,10 @@ const anonymizeTranscriptionFlow = ai.defineFlow(
     outputSchema: AnonymizeTranscriptionOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Stringify the transcription data before passing it to the prompt.
+    const {output} = await prompt({
+        transcriptionJson: JSON.stringify(input.transcription, null, 2)
+    });
     return output!;
   }
 );
