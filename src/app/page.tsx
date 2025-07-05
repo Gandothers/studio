@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { improveTranscriptionAccuracy, type TranscriptionSegment } from '@/ai/flows/improve-accuracy';
+import { improveTranscriptionAccuracy } from '@/ai/flows/improve-accuracy';
+import type { TranscriptionSegment } from '@/ai/schemas';
 import { summarizeTranscription } from '@/ai/flows/summarize-transcription';
 import { transcribeAudio } from '@/ai/flows/transcribe-audio';
 import { AudioUpload } from '@/components/audio-upload';
@@ -11,6 +12,10 @@ import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileAudio, Hourglass, Terminal } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { anonymizeTranscription } from '@/ai/flows/anonymize-transcription';
 
 type Status = 'idle' | 'transcribing' | 'editing' | 'error';
 
@@ -34,12 +39,16 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [hasConsented, setHasConsented] = useState(false);
+  const [anonymize, setAnonymize] = useState(true);
+  const [wasAnonymized, setWasAnonymized] = useState(false);
 
   const handleFileUpload = async (file: File) => {
     setStatus('transcribing');
     setUploadedFile(file);
     setError(null);
     setProgress(0);
+    setWasAnonymized(false);
 
     try {
       setProgressMessage('Uploading and preparing audio...');
@@ -48,17 +57,32 @@ export default function Home() {
 
       setProgressMessage('Transcribing audio...');
       const { transcription: rawTranscription } = await transcribeAudio({ audioDataUri });
-      setProgress(50);
+      setProgress(40);
       
       setProgressMessage('Improving accuracy and adding timestamps...');
       const { improvedTranscription } = await improveTranscriptionAccuracy({
         transcription: rawTranscription,
       });
-      setTranscription(improvedTranscription);
-      setProgress(95);
+      setProgress(70);
+
+      let finalTranscription = improvedTranscription;
+
+      if (anonymize) {
+        setProgressMessage('Redacting sensitive information (PII)...');
+        setWasAnonymized(true);
+        const { anonymizedTranscription } = await anonymizeTranscription({
+            transcription: improvedTranscription,
+        });
+        finalTranscription = anonymizedTranscription;
+        setProgress(95);
+      } else {
+        setProgress(95);
+      }
+      
+      setTranscription(finalTranscription);
 
       setProgressMessage('Generating summary...');
-      const textToSummarize = improvedTranscription.map(segment => segment.text).join(' ');
+      const textToSummarize = finalTranscription.map(segment => segment.text).join(' ');
       const { summary: aiSummary } = await summarizeTranscription({
         transcription: textToSummarize,
       });
@@ -85,6 +109,8 @@ export default function Home() {
     setProgress(0);
     setError(null);
     setProgressMessage('');
+    setHasConsented(false);
+    setWasAnonymized(false);
   }
 
   return (
@@ -98,7 +124,22 @@ export default function Home() {
 
       <div className="flex flex-col items-center gap-8">
         {status === 'idle' && (
-          <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle'}/>
+          <div className="w-full max-w-2xl space-y-6">
+            <Card className="p-6 space-y-4 border-amber-500/50 bg-amber-50/20">
+              <div className="flex items-start space-x-3">
+                <Checkbox id="consent" className="mt-0.5" checked={hasConsented} onCheckedChange={(checked) => setHasConsented(checked as boolean)} />
+                <Label htmlFor="consent" className="text-sm font-normal cursor-pointer -mt-1">
+                  I understand that my audio file will be processed by Google AI for transcription. I will not upload any sensitive personal data, financial information, or Protected Health Information (PHI).
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3 pl-1">
+                <Switch id="anonymize-switch" checked={anonymize} onCheckedChange={setAnonymize} />
+                <Label htmlFor="anonymize-switch" className="cursor-pointer">Enable PII & PHI Redaction</Label>
+              </div>
+               <p className="text-xs text-muted-foreground pl-1">Recommended for privacy. Automatically finds and removes sensitive information like names, phone numbers, and addresses from the final transcript.</p>
+            </Card>
+            <AudioUpload onFileUpload={handleFileUpload} disabled={status !== 'idle' || !hasConsented} />
+          </div>
         )}
 
         {(status === 'transcribing' || status === 'error') && uploadedFile && (
@@ -142,6 +183,7 @@ export default function Home() {
               initialTranscription={transcription}
               summary={summary}
               fileName={uploadedFile.name}
+              anonymized={wasAnonymized}
             />
           </>
         )}

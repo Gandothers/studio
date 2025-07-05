@@ -4,19 +4,22 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Sparkles, BookText } from 'lucide-react';
-import type { TranscriptionSegment } from '@/ai/flows/improve-accuracy';
+import { Download, FileText, Sparkles, BookText, ShieldCheck } from 'lucide-react';
+import type { TranscriptionSegment } from '@/ai/schemas';
+import { Badge } from '@/components/ui/badge';
 
 interface TranscriptionEditorProps {
   initialTranscription: TranscriptionSegment[];
   summary: string;
   fileName: string;
+  anonymized: boolean;
 }
 
 export function TranscriptionEditor({
   initialTranscription,
   summary,
   fileName,
+  anonymized,
 }: TranscriptionEditorProps) {
   const [editedTranscription, setEditedTranscription] = useState(initialTranscription);
 
@@ -51,9 +54,17 @@ export function TranscriptionEditor({
       <div className="lg:col-span-2">
         <Card className="h-full flex flex-col">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-accent" />
-              <CardTitle>Transcription Editor</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-accent" />
+                <CardTitle>Transcription Editor</CardTitle>
+              </div>
+              {anonymized && (
+                <Badge variant="secondary" className="gap-1.5 pl-2">
+                  <ShieldCheck className="w-4 h-4 text-green-600"/>
+                  PII Redacted
+                </Badge>
+              )}
             </div>
             <CardDescription>
               Review and edit the AI-generated transcription below.
